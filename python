@@ -1,0 +1,41 @@
+import os
+import requests
+from bs4 import BeautifulSoup
+
+def center_text(text):
+    terminal_size = os.get_terminal_size().columns
+    padding = (terminal_size - len(text)) // 2
+    print(' ' * padding + text)
+
+def main_menu():
+
+    while True:
+        center_text("Scraps: Senitive Content Retrieval and Analysis for python Security")
+        center_text("Chris D Wise Jr")
+        center_text("S01095843@acad.tri-c.edu")
+
+ 
+        url = input("Please Enter A URL: ")
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+            print(soup.prettify())
+        except requests.exceptions.RequestException as i:
+            print(f"404 Error: {i}")
+
+        choice = input('Enter your choice: ')
+        if choice == '1':
+            add_contact()
+        elif choice == '2':
+            search_contact()
+        elif choice == '3':
+            delete_contact()
+        elif choice == '4':
+            break
+        else:
+            print('Invalid choice. Please try again.')
+            print()
+    
+    
