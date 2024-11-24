@@ -1,4 +1,6 @@
 import os
+import re
+import csv
 import requests
 from bs4 import BeautifulSoup
 
@@ -7,35 +9,73 @@ def center_text(text):
     padding = (terminal_size - len(text)) // 2
     print(' ' * padding + text)
 
+def display_data(data):
+    if data:
+        print('\nData found:')
+        print(data)
+
+    else:
+        print('No data found.')
+
+def web_scrape():
+
+    url = input('Enter the URL: ')
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        print("\nData successfully scraped!\n")
+        return soup.prettify()
+    except requests.exceptions.RequestException as i:
+        print(f"404 Error: {i}")
+        return None
+    
+def find_patterns(data):
+    patterns = {
+
+    }
+    results = {key: re.findall(pattern, data) for key, pattern in patterns.items()}
+    return results
+
+
+
 def main_menu():
+    found_data = False
+    data = None
+    
+
 
     while True:
         center_text("Scraps: Senitive Content Retrieval and Analysis for python Security")
         center_text("Chris D Wise Jr")
         center_text("S01095843@acad.tri-c.edu")
 
- 
-        url = input("Please Enter A URL: ")
+        if found_data:
+            print('2. Display scraped data')
+            print("3. Save Data to a CSV file")
+            print('4. Exit')
+        else:
+            print('1. Scrape a URL')
+            print('4. Exit')
 
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            soup = BeautifulSoup(response.text, 'html.parser')
-            print(soup.prettify())
-        except requests.exceptions.RequestException as i:
-            print(f"404 Error: {i}")
 
         choice = input('Enter your choice: ')
-        if choice == '1':
-            add_contact()
-        elif choice == '2':
-            search_contact()
-        elif choice == '3':
-            delete_contact()
+        if choice == '1'and not found_data:
+            data = web_scrape()
+            if data:
+                found_data = find_patterns(data)
+        elif choice == '2' and found_data:
+            display_data(data)
+        elif choice == '3' and found_data:
+            save_to_csv(data)
         elif choice == '4':
+            print('Goodbye!')
             break
         else:
             print('Invalid choice. Please try again.')
-            print()
+            
+if __name__ == '__main__':
+    main_menu()
+    
     
     
