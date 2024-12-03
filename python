@@ -31,11 +31,15 @@ def web_scrape():
         return None
     
 def find_patterns(data):
-    patterns = {
+    patterns = []
+    regex = re,compile()
+    for pattern in patterns:
+        if re.search(pattern, data):
+            found = True
+            print(f'Pattern found: {pattern}')
+    return found
 
-    }
-    results = {key: re.findall(pattern, data) for key, pattern in patterns.items()}
-    return results
+
 
 
 
