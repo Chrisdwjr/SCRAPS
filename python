@@ -5,20 +5,17 @@ import requests
 from bs4 import BeautifulSoup
 import time
 
-# dont forget to add delay between requests to avoid being blocked by the website and overwhelming the server
-# make sure to check website's robots.txt file to see if it's allowed to scrape the website
-# make sure to check the website's terms of service to see if it's allowed to scrape the website
-# http and https are different protocols so make sure to check the website's protocol
-# code should follow PEP8 stanards
-# check for proformance issues, Error handling and Security Considerations
+# This program will scrape a website
 
-def center_text(text): # this function will center the text in the terminal
+def center_text(text): 
+    # This function will center the text in the terminal
     terminal_size = os.get_terminal_size().columns
     padding = (terminal_size - len(text)) // 2
     print(' ' * padding + text)
-    # if have time play around with adding color to the text
+    
 
 def display_data(data):
+    # This function will display the scraped data. When the user selects this option, the program will display the data that was scraped from the website.
     if data:
         print('\nData found:')
         print(data)
@@ -26,27 +23,28 @@ def display_data(data):
     else:
         print('No data found.')
 
-# def check_url(url): remind myself to add this function to check if the url is valid or not if i need it(Udemy course London App Brewery)
-# def validate_url(url): remind myself to add this function to check if the url is valid or not if i need it(Udemy course London App Brewery)
+
 
 def web_scrape():
-#    url = 'https://www.tri-c.edu/' to test the program
-# should i use a headers = {'User-Agent': 'Mozilla/5.0'} to avoid being blocked by the website so it lookslike a real user is accessing the website
+#    This function will scrape the website and return the data. When the user selects this option, the program will prompt the user to enter a URL. The program will then scrape the website and return the data.
     url = input('Enter the URL: ')
+    headers = {'User-Agent': 'Mozilla/5.0'}
     try:
-        response = requests.get(url) # i know i don't need a decode here because i'm using beautifulsoup, because this already provides the respone content in a string format
+        response = requests.get(url, headers=headers) 
         response.raise_for_status()
+        print(f'{response.status_code}')
         soup = BeautifulSoup(response.text, 'html.parser')
         print("\nData Successfully Scraped!\n")
-        time.sleep(2) # see if 1 second is enough time after testing 2 seconds
+        time.sleep(2) 
         return soup.prettify()
-    except requests.exceptions.RequestException as i: # should i add more error handling here? like timeout error, connection error, too many redirects error, etc.
+    except Exception as i: 
         print(f"Too Bad So Sad Error Found!: {i}")
         return None
     
-def regex(data): # this function will search for sensitive data in the scraped data
+def regex(data): 
+    # this function will search for sensitive data in the scraped data
     patterns = {
-        "SSN": re.compile(r"\d{3}-\d{2}-\d{4}"), # need to check if i need the re.compile here or not seen it a different ways double check regex expression
+        "SSN": re.compile(r"\d{3}-\d{2}-\d{4}"), 
         "Phone Number": re.compile(r"\d{3}-\d{3}-\d{4}"),
         "Email": re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"),
         "Credit Card": re.compile(r"\d{4}-\d{4}-\d{4}-\d{4}"),
@@ -68,17 +66,19 @@ def regex(data): # this function will search for sensitive data in the scraped d
 
 
 def export_to_csv(data):
+    # This function will export the scraped data to a CSV file.
     if data:
-        with open('scraped_data.csv', 'w', newline='') as csvfile: # should i add 'r' to read the file?
+        with open('scraped_data.csv', 'w', newline='') as csvfile: 
             writer = csv.writer(csvfile)
             for key, values in data.items():
                 writer.writerow([key] + values)
-        print("Data successfully saved to scraped_data.csv") # should i change the name of the file to the url name? and print a message where it is placed.
+        print("Data successfully saved to scraped_data.csv") 
     else:
         print("No data to export.")
 
 
 def main_menu():
+    # This function will display the main menu and handle user input.
     found_data = False
     data = None
     
