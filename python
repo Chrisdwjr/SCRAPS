@@ -3,11 +3,20 @@ import re
 import csv
 import requests
 from bs4 import BeautifulSoup
+import time
 
-def center_text(text):
+# dont forget to add delay between requests to avoid being blocked by the website and overwhelming the server
+# make sure to check website's robots.txt file to see if it's allowed to scrape the website
+# make sure to check the website's terms of service to see if it's allowed to scrape the website
+# http and https are different protocols so make sure to check the website's protocol
+# code should follow PEP8 stanards
+# check for proformance issues, Error handling and Security Considerations
+
+def center_text(text): # this function will center the text in the terminal
     terminal_size = os.get_terminal_size().columns
     padding = (terminal_size - len(text)) // 2
     print(' ' * padding + text)
+    # if have time play around with adding color to the text
 
 def display_data(data):
     if data:
@@ -17,30 +26,56 @@ def display_data(data):
     else:
         print('No data found.')
 
-def web_scrape():
+# def check_url(url): remind myself to add this function to check if the url is valid or not if i need it(Udemy course London App Brewery)
+# def validate_url(url): remind myself to add this function to check if the url is valid or not if i need it(Udemy course London App Brewery)
 
+def web_scrape():
+#    url = 'https://www.tri-c.edu/' to test the program
+# should i use a headers = {'User-Agent': 'Mozilla/5.0'} to avoid being blocked by the website so it lookslike a real user is accessing the website
     url = input('Enter the URL: ')
     try:
-        response = requests.get(url)
+        response = requests.get(url) # i know i don't need a decode here because i'm using beautifulsoup, because this already provides the respone content in a string format
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        print("\nData successfully scraped!\n")
+        print("\nData Successfully Scraped!\n")
+        time.sleep(2) # see if 1 second is enough time after testing 2 seconds
         return soup.prettify()
-    except requests.exceptions.RequestException as i:
-        print(f"404 Error: {i}")
+    except requests.exceptions.RequestException as i: # should i add more error handling here? like timeout error, connection error, too many redirects error, etc.
+        print(f"Too Bad So Sad Error Found!: {i}")
         return None
     
-def find_patterns(data):
-    patterns = []
-    regex = re,compile()
-    for pattern in patterns:
-        if re.search(pattern, data):
-            found = True
-            print(f'Pattern found: {pattern}')
+def regex(data): # this function will search for sensitive data in the scraped data
+    patterns = {
+        "SSN": re.compile(r"\d{3}-\d{2}-\d{4}"), # need to check if i need the re.compile here or not seen it a different ways double check regex expression
+        "Phone Number": re.compile(r"\d{3}-\d{3}-\d{4}"),
+        "Email": re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"),
+        "Credit Card": re.compile(r"\d{4}-\d{4}-\d{4}-\d{4}"),
+        "Birthdate": re.compile(r"\d{2}/\d{2}/\d{4}"),
+    }
+    found = {}
+    for key, pattern in patterns.items():
+        matches = pattern.findall(data)
+        if matches:
+            found[key] = matches
+
+    if not found:
+        print("No sensitive data found.")
+        return None
+    
     return found
+    
 
 
 
+def export_to_csv(data):
+    if data:
+        with open('scraped_data.csv', 'w', newline='') as csvfile: # should i add 'r' to read the file?
+            writer = csv.writer(csvfile)
+            for key, values in data.items():
+                writer.writerow([key] + values)
+        print("Data successfully saved to scraped_data.csv") # should i change the name of the file to the url name? and print a message where it is placed.
+    else:
+        print("No data to export.")
 
 
 def main_menu():
@@ -56,7 +91,7 @@ def main_menu():
 
         if found_data:
             print('2. Display scraped data')
-            print("3. Save Data to a CSV file")
+            print("3. Export Data to a CSV file")
             print('4. Exit')
         else:
             print('1. Scrape a URL')
@@ -67,19 +102,22 @@ def main_menu():
         if choice == '1'and not found_data:
             data = web_scrape()
             if data:
-                found_data = find_patterns(data)
+                found_data = regex(data)
         elif choice == '2' and found_data:
             display_data(data)
         elif choice == '3' and found_data:
-            save_to_csv(data)
+            export_to_csv(data)
         elif choice == '4':
             print('Goodbye!')
             break
         else:
             print('Invalid choice. Please try again.')
+
+
             
 if __name__ == '__main__':
     main_menu()
+
     
     
     
