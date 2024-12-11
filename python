@@ -64,9 +64,9 @@ def regex(data):
     }
     found = {}
     for key, pattern in patterns.items():
-        matches = pattern.findall(data)
+        matches = set(pattern.findall(data))
         if matches:
-            found[key] = matches
+            found[key] = list(matches)
 
     if not found:
         print("No sensitive data found.")
@@ -93,12 +93,13 @@ def main_menu():
     # This function will display the main menu and handle user input.
     found_data = None
 
-    while True:
-        center_text("Scraps: Sensitive Content Retrieval and Analysis for Python Security")
-        center_text("Chris D Wise Jr")
-        center_text("S01095843@acad.tri-c.edu")
-        center_text("Cuyahoga Community College")
+    center_text("Scraps: Sensitive Content Retrieval and Analysis for Python Security")
+    center_text("Chris D Wise Jr")
+    center_text("S01095843@acad.tri-c.edu")
+    center_text("Cuyahoga Community College")
 
+    while True:
+        
         if not found_data:
             print('1. Scrape website')
             print('2. Exit')
