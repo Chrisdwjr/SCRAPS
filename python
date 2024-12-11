@@ -9,16 +9,23 @@ import time
 
 def center_text(text): 
     # This function will center the text in the terminal
-    terminal_size = os.get_terminal_size().columns
-    padding = (terminal_size - len(text)) // 2
-    print(' ' * padding + text)
+    try:
+        terminal_size = os.get_terminal_size().columns
+        padding = (terminal_size - len(text)) // 2
+        print(' ' * padding + text)
+    except OSError:
+        print(text)
     
 
 def display_data(data):
     # This function will display the scraped data. When the user selects this option, the program will display the data that was scraped from the website.
     if data:
         print('\nData found:')
-        print(data)
+        for key, values in data.items():
+            print(f"{key}:")
+            for value in values:
+                print(f'  {value}')
+
 
     else:
         print('No data found.')
@@ -26,19 +33,24 @@ def display_data(data):
 
 
 def web_scrape():
-#    This function will scrape the website and return the data. When the user selects this option, the program will prompt the user to enter a URL. The program will then scrape the website and return the data.
+    # This function will scrape the website and return the data. When the user selects this option, the program will prompt the user to enter a URL. The program will then scrape the website and return the data.
     url = input('Enter the URL: ')
     headers = {'User-Agent': 'Mozilla/5.0'}
+    if not re.match(r'http[s]?://', url):
+        print("Invalid URL. Please enter a valid URL.")
+        return None
+    
+
     try:
-        response = requests.get(url, headers=headers) 
+        response = requests.get(url, headers=headers, timeout=10) 
         response.raise_for_status()
         print(f'{response.status_code}')
         soup = BeautifulSoup(response.text, 'html.parser')
-        print("\nData Successfully Scraped!\n")
+        print(f"\nData Successfully Scraped! from {url}\n")
         time.sleep(2) 
         return soup.prettify()
-    except Exception as i: 
-        print(f"Too Bad So Sad Error Found!: {i}")
+    except requests.exceptions.RequestException as i: 
+        print(f"Error Found!: {i}")
         return None
     
 def regex(data): 
@@ -58,8 +70,8 @@ def regex(data):
 
     if not found:
         print("No sensitive data found.")
-        return None
-    
+        return {}
+
     return found
     
 
@@ -79,42 +91,38 @@ def export_to_csv(data):
 
 def main_menu():
     # This function will display the main menu and handle user input.
-    found_data = False
-    data = None
-    
-
+    found_data = None
 
     while True:
-        center_text("Scraps: Senitive Content Retrieval and Analysis for python Security")
+        center_text("Scraps: Sensitive Content Retrieval and Analysis for Python Security")
         center_text("Chris D Wise Jr")
         center_text("S01095843@acad.tri-c.edu")
+        center_text("Cuyahoga Community College")
 
-        if found_data:
-            print('2. Display scraped data')
-            print("3. Export Data to a CSV file")
-            print('4. Exit')
+        if not found_data:
+            print('1. Scrape website')
+            print('2. Exit')
         else:
-            print('1. Scrape a URL')
-            print('4. Exit')
-
+            print('1. Display scraped data')
+            print('2. Export data to a CSV file')
+            print('3. Exit')
 
         choice = input('Enter your choice: ')
-        if choice == '1'and not found_data:
+
+        if choice == '1' and not found_data:
             data = web_scrape()
             if data:
                 found_data = regex(data)
+        elif choice == '1' and found_data:
+            display_data(found_data)
         elif choice == '2' and found_data:
-            display_data(data)
-        elif choice == '3' and found_data:
-            export_to_csv(data)
-        elif choice == '4':
+            export_to_csv(found_data)
+        elif choice == '2' and not found_data or choice == '3' and found_data:
             print('Goodbye!')
             break
         else:
             print('Invalid choice. Please try again.')
 
-
-            
 if __name__ == '__main__':
     main_menu()
 
